@@ -1,7 +1,8 @@
 //importaciones 
 const validate = require("../helpers/validate");
 const User = require("../models/user");
-const bcrypt = require("bcrypt");
+const jwt = require("../helpers/jwt");
+const bcrypt = require("bcrypt")
 
 const prueba = (req, res) => {
     return res.status(200).send({
@@ -84,8 +85,8 @@ const Register = (req, res) => {
 
             //limpiar el objeto quitar password y role 
             let userCreated = userSave.toObject();
-            delete userCreated.password; 
-            delete userCreated.role; 
+            delete userCreated.password;
+            delete userCreated.role;
 
 
 
@@ -108,10 +109,70 @@ const Register = (req, res) => {
 
     duplicados();
 
+}
+
+
+const login = (req, res) => {
+
+    //recoger los parametros
+    let params = req.body;
+    //comprobar que lleguen 
+    if (!params.email || !params.password) {
+
+        return res.status(400).send({
+            status: "error",
+            message: "falta un campo por llenar  "
+        })
+    }
+
+    async function busquedaLog() {
+        // buscar en bd 
+        const busquedaUser = await User.findOne({
+            email: params.email
+        }).select("+password +role")
+
+        if (!busquedaUser) {
+            return res.status(400).send({
+                status: "error",
+                message: "no existe el usuario "
+            })
+        }
+
+        //comporbar contrasena
+        //este hace una comparacion con el usuario
+        const pwd = bcrypt.compareSync(params.password, busquedaUser.password);
+       //eliminar el campo de password /limpiar datos 
+        let identidadUser = busquedaUser.toObject();
+        delete identidadUser.password;
+        delete identidadUser.role;
+       
+        if (!pwd) {
+            return res.status(400).send({
+                status: "error",
+                message: " Login Incorrecto"
+            })
+        }
+
+        //conseguir token en jwt (crear un servicio que no permita crear el token)\
+        const token = jwt.tokenCreate(busquedaUser);
 
 
 
 
+
+        //devoler datos de usuario y stoken 
+
+
+        return res.status(200).send({
+            status: "success",
+            message: "Mensaje eniado desde login ",
+            user: identidadUser,
+            token
+        })
+
+    }
+
+    busquedaLog();
 
 
 
@@ -121,10 +182,8 @@ const Register = (req, res) => {
 
 
 
-
-
-
 module.exports = {
     prueba,
-    Register
-} 
+    Register,
+    login
+}
