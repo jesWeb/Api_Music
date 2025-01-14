@@ -141,11 +141,11 @@ const login = (req, res) => {
         //comporbar contrasena
         //este hace una comparacion con el usuario
         const pwd = bcrypt.compareSync(params.password, busquedaUser.password);
-       //eliminar el campo de password /limpiar datos 
+        //eliminar el campo de password /limpiar datos 
         let identidadUser = busquedaUser.toObject();
         delete identidadUser.password;
         delete identidadUser.role;
-       
+
         if (!pwd) {
             return res.status(400).send({
                 status: "error",
@@ -155,10 +155,6 @@ const login = (req, res) => {
 
         //conseguir token en jwt (crear un servicio que no permita crear el token)\
         const token = jwt.tokenCreate(busquedaUser);
-
-
-
-
 
         //devoler datos de usuario y stoken 
 
@@ -178,6 +174,37 @@ const login = (req, res) => {
 
 }
 
+const perfil = (req, res) => {
+    //reocger el id 
+    const id = req.params.id;
+    //consulta para sacar lod datos
+
+    async function Perfil() {
+
+        const viewPerfil = await User.findById(id);
+
+        if (!viewPerfil) {
+
+            return res.status(400).send({
+                status: "error",
+                message: "El usuario no existe",
+
+            })
+        }
+
+
+        return res.status(200).send({
+            status: "success",
+            id,
+            viewPerfil
+
+        })
+
+    }
+
+
+    Perfil();
+}
 
 
 
@@ -185,5 +212,6 @@ const login = (req, res) => {
 module.exports = {
     prueba,
     Register,
-    login
+    login,
+    perfil
 }

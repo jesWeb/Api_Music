@@ -10,6 +10,7 @@ router.get("/prueba", UserController.prueba);
 //usuarios 
 router.post("/register", UserController.Register);
 router.post("/login", UserController.login);
+router.get("/perfil/:id", UserController.perfil);
 
 
 //exportar 
