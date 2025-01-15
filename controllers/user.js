@@ -301,10 +301,7 @@ const update = (req, res) => {
     Actualizar();
 
 }
-
 //upload
-
-
 const upload = (req, res) => {
 
     async function userUpdated() {
@@ -372,6 +369,32 @@ const upload = (req, res) => {
 
 }
 
+//mostrar image 
+
+const  mostrarImage = async (req, res) => {
+    // sacar el parametro de la url 
+    const file = await req.params.file;
+    //montar el path de la imagen 
+    const filePath = "./images/avatars/" + file;
+    //comprobar si existe 
+    fs.stat(filePath, (exists) => {
+
+        if (!exists) {
+            //devolver u file 
+            return res.sendFile(path.resolve(filePath));
+
+        } else {
+            return res.status(404).send({
+                status: "error",
+                menssage: "no existe la imagen "
+            });
+        }
+
+
+    });
+}
+
+
 
 
 module.exports = {
@@ -380,5 +403,7 @@ module.exports = {
     login,
     perfil,
     update,
-    upload
+    upload,
+    mostrarImage
+
 }

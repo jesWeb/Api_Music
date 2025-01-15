@@ -31,6 +31,7 @@ router.post("/login", UserController.login);
 router.get("/perfil/:id", check.auth, UserController.perfil);
 router.put("/update", check.auth, UserController.update);
 router.post("/upload", [check.auth, uploads.single("file0")], UserController.upload);
+router.get("/avatar/:file", check.auth, UserController.mostrarImage);
 
 
 //exportar 
