@@ -110,8 +110,7 @@ const Register = (req, res) => {
     duplicados();
 
 }
-
-
+//login
 const login = (req, res) => {
 
     //recoger los parametros
@@ -170,10 +169,8 @@ const login = (req, res) => {
 
     busquedaLog();
 
-
-
 }
-
+//perfil
 const perfil = (req, res) => {
     //reocger el id 
     const id = req.params.id;
@@ -206,6 +203,114 @@ const perfil = (req, res) => {
     Perfil();
 }
 
+const update = (req, res) => {
+
+    //datos user
+    let UserIdentity = req.user;
+    //datos actualizar
+    let UserUpdate = req.body;
+
+
+
+    //validar datos 
+
+    try {
+        validate(UserUpdate);
+    } catch (error) {
+        return res.status(400).send({
+            status: "error",
+            message: "validacion no superada "
+        })
+    }
+
+    async function Actualizar() {
+
+
+        //comprobar si el usuario existe 
+        const usuarioExt = await User.find({
+            $or: [{
+                    email: UserUpdate.email.toLowerCase()
+                },
+                {
+                    nick: UserUpdate.nick.toLowerCase()
+                }
+            ]
+        });
+
+
+        if (!usuarioExt) {
+
+            return res.status(500).send({
+                status: "error",
+                message: "Error en la consulta de usuarios  "
+            })
+
+        }
+
+        //ver si no es el mismo usuario 
+        let userIset = false;
+
+        usuarioExt.forEach((user) => {
+            if (user && user._id != UserIdentity.id) userIset = true;
+        });
+
+        //si ya existe devolver respuetsa 
+        if (userIset) {
+            return res.status(400).send({
+                status: "error",
+                message: "El usuario con ese email o nick ya existe"
+            });
+        }
+        //cifrar ala contrasena 
+        if (UserUpdate.password) {
+            let pwd = await bcrypt.hash(UserUpdate.password, 10);
+            UserUpdate.password = pwd;
+        } else {
+            delete UserUpdate.password;
+        }
+
+        // buscar usuario  en la db  y actualizar 
+        try {
+
+            let userActualizado = await User.findByIdAndUpdate({
+                _id: UserIdentity.id
+            }, UserUpdate);
+
+            if (!userActualizado) {
+                return res.status(400).send({
+                    status: "error",
+                    message: "Error al actualzar"
+                });
+            } else {
+
+                return res.status(200).send({
+                    status: "success",
+                    message: "Usuario actualizado",
+                    user: userActualizado
+                });
+            }
+
+
+        } catch (error) {
+            return res.status(500).send({
+                status: "error",
+                message: "Problemas al actualizar"
+            });
+        }
+
+
+        //devolver respuesta 
+
+
+
+        return res.status(200).send({
+            status: "success",
+            message: "Mensaje eniado desde controlelr "
+        })
+    }
+    Actualizar();
+
+}
 
 
 
@@ -213,5 +318,6 @@ module.exports = {
     prueba,
     Register,
     login,
-    perfil
+    perfil,
+    update
 }

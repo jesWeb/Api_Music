@@ -13,6 +13,7 @@ router.get("/prueba", check.auth, UserController.prueba);
 router.post("/register", UserController.Register);
 router.post("/login", UserController.login);
 router.get("/perfil/:id", check.auth,UserController.perfil);
+router.put("/update", check.auth,UserController.update);
 
 
 //exportar 
