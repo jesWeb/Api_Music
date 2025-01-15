@@ -1,9 +1,6 @@
 //dependencias
 const jwt = require("jwt-simple");
 const moment = require("moment");
-// const {
-//     default: isEmail
-// } = require("validator/lib/isEmail");
 
 //clave secreta 
 const secret = "La_ciave_Punchy_Music-4568";

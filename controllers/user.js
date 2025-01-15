@@ -2,7 +2,9 @@
 const validate = require("../helpers/validate");
 const User = require("../models/user");
 const jwt = require("../helpers/jwt");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const fs = require('fs');
+const path = require('path');
 
 const prueba = (req, res) => {
     return res.status(200).send({
@@ -202,16 +204,13 @@ const perfil = (req, res) => {
 
     Perfil();
 }
-
+//actualiozar
 const update = (req, res) => {
 
     //datos user
     let UserIdentity = req.user;
     //datos actualizar
     let UserUpdate = req.body;
-
-
-
     //validar datos 
 
     try {
@@ -298,17 +297,78 @@ const update = (req, res) => {
             });
         }
 
-
-        //devolver respuesta 
-
-
-
-        return res.status(200).send({
-            status: "success",
-            message: "Mensaje eniado desde controlelr "
-        })
     }
     Actualizar();
+
+}
+
+//upload
+
+
+const upload = (req, res) => {
+
+    async function userUpdated() {
+
+
+        //recoger fichero de imagen y comprobar si existe 
+        if (!req.file) {
+            return res.status(400).send({
+                status: "error",
+                message: "La peticion no incluye la imagen",
+
+            })
+        }
+        //conseguir el nombre del archivo 
+        let image = req.file.originalname;
+
+        //sacar info de la imagen 
+        const imagenSplit = image.split("\.");
+        const extension = imagenSplit[1];
+
+        //comprobar si la extension es valida 
+        if (extension !== 'png' && extension !== 'jpg' && extension !== 'jpeg') {
+
+            //si no es es6te eliminara el archivo  subido 
+            const filePath = req.file.path;
+            //file system 
+            const fileDelete = fs.unlinkSync(filePath);
+
+            return res.status(400).send({
+                status: "error",
+                message: "Extension del fiechero es invalida"
+            })
+
+        }
+
+        try {
+            let userUpdated = await User.findOneAndUpdate({
+                _id: req.user.id
+            }, {
+                image: req.file.filename
+            }, {
+                new: true
+            });
+
+            //devolver respuesta 
+            return res.status(200).send({
+                status: "success",
+                user: userUpdated,
+                file: req.file
+            })
+
+
+        } catch (error) {
+            return res.status(500).send({
+                status: "error",
+                message: "error en la subida del archivo ",
+            })
+        }
+
+
+    }
+
+    userUpdated();
+
 
 }
 
@@ -319,5 +379,6 @@ module.exports = {
     Register,
     login,
     perfil,
-    update
+    update,
+    upload
 }
