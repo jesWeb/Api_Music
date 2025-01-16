@@ -9,10 +9,10 @@ const multer = require("multer");
 //donde almacenar 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "./images/artistas");
+        cb(null, "./images/artistas/");
     },
     filename: (req, file, cb) => {
-        cb(null, "avatar-" + Date.now() + "-" + file.originalname);
+        cb(null, "artista-" + Date.now() + "-" + file.originalname);
     }
 })
 //tipo middleware
@@ -27,5 +27,7 @@ router.get("/one/:id", check.auth, ArtisController.one);
 router.get("/list/:page?", check.auth, ArtisController.list);
 router.put("/editar/:id", check.auth, ArtisController.editar);
 router.delete("/eliminar/:id", check.auth, ArtisController.eliminar);
+router.post("/upload/:id", [check.auth, uploads.single("file0")], ArtisController.upload);
+router.get("/image/:file", check.auth, ArtisController.mostrarImageA);
 //exportar 
 module.exports = router;
