@@ -45,7 +45,6 @@ const guardar = async (req, res) => {
 
 }
 
-
 //sacar un artista 
 const one = (req, res) => {
 
@@ -74,9 +73,7 @@ const one = (req, res) => {
     obtener();
 }
 
-
 //listado de artistas 
-
 const list = (req, res) => {
 
     //sacar la posible pagina
@@ -118,20 +115,54 @@ const list = (req, res) => {
 }
 
 
-// const prueba = (req, res) => {
-//     return status(200).send({
-//         status: "success",
-//         message: "Mensaje eniado desde controlelr "
-//     })
-// }
+const editar = (req, res) => {
+
+    //id artista url 
+    const id = req.params.id;
+    //recoger datos del body 
+    const data = req.body;
+
+    async function edicion() {
+        try {
+
+            let editarArt = await Artist.findByIdAndUpdate(id, data, {
+                new: true
+            });
 
 
-// const prueba = (req, res) => {
-//     return status(200).send({
-//         status: "success",
-//         message: "Mensaje eniado desde controlelr "
-//     })
-// }
+            if (!editarArt) {
+
+                return res.status(404).send({
+                    status: "error",
+                    message: "el artista no se encontro y no se actualizo "
+                })
+            } else {
+                return res.status(200).send({
+                    status: "success",
+                    message: "Artista actualizado",
+                    artista: editarArt
+                })
+            }
+
+        } catch (error) {
+
+            return res.status(500).send({
+                status: "error",
+                message: "no se puedo actualizar "
+            })
+        }
+    }
+
+    edicion();
+}
+
+
+const eliminar = (req, res) => {
+    return status(200).send({
+        status: "success",
+        message: "Mensaje eniado desde controlelr "
+    })
+}
 
 
 
@@ -140,5 +171,6 @@ module.exports = {
     prueba,
     guardar,
     one,
-    list
+    list,
+    editar
 }

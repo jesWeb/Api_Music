@@ -9,5 +9,6 @@ router.get("/prueba", ArtisController.prueba);
 router.post("/save", check.auth, ArtisController.guardar);
 router.get("/one/:id", check.auth, ArtisController.one);
 router.get("/list/:page?", check.auth, ArtisController.list);
+router.put("/editar/:id", check.auth, ArtisController.editar);
 //exportar 
 module.exports = router;
