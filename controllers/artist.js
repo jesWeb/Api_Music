@@ -158,10 +158,34 @@ const editar = (req, res) => {
 
 
 const eliminar = (req, res) => {
-    return status(200).send({
-        status: "success",
-        message: "Mensaje eniado desde controlelr "
-    })
+
+    //sacar el id de la url 
+    const artistId = req.params.id;
+    //consultar para buscar y eliminar con el wait 
+    async function eliminar(params) {
+        try {
+            //eliminar artista
+            const artisRemove = await Artist.findByIdAndDelete(artistId)
+            //alimiar album
+            //eliminar songs
+
+
+            return res.status(200).send({
+                status: "success",
+                message: "metodo borrado artista ",
+                artisRemove
+            })
+        } catch (error) {
+
+            return res.status(500).send({
+                status: "error",
+                message: "Error al eliminar elartista o alguno de sus elelementos ",
+                error
+            })
+        }
+    }
+    eliminar();
+
 }
 
 
@@ -172,5 +196,6 @@ module.exports = {
     guardar,
     one,
     list,
-    editar
+    editar,
+    eliminar
 }
