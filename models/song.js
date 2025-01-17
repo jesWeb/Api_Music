@@ -24,7 +24,7 @@ const songSchema = Schema({
         default: true
     },
     file: {
-        type: Buffer,
+        type: String,
         default:"song.mp3"
     },
     created_at: {
