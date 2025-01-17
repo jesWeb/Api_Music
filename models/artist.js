@@ -22,4 +22,4 @@ const ArtistShema = Schema({
     }
 })
 
-module.exports = model("Arist", ArtistShema, "artists");
+module.exports = model("Artist", ArtistShema, "artists");

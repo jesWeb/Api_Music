@@ -2,6 +2,8 @@ const Artist = require("../models/artist");
 const paginate = require('mongoose-pagination');
 const fs = require('fs');
 const path = require("path");
+const album = require("../models/albums");
+const song = require("../models/song");
 
 const prueba = (req, res) => {
     return status(200).send({
@@ -169,13 +171,20 @@ const eliminar = (req, res) => {
             //eliminar artista
             const artisRemove = await Artist.findByIdAndDelete(artistId)
             //alimiar album
+            const albumRemove = await album.find({
+                artist: artistId
+            }).remove();
             //eliminar songs
-
+            const songRemove = await album.find({
+                album: albumRemove._id
+            }).remove();
 
             return res.status(200).send({
                 status: "success",
                 message: "metodo borrado artista ",
-                artisRemove
+                artisRemove,
+                albumRemove,
+                songRemove
             })
         } catch (error) {
 

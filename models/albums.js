@@ -2,12 +2,11 @@ const {
     Schema,
     model
 } = require("mongoose");
+
 const artist = require("./artist");
 
 
 const AlbumSchema = Schema({
-
-
     artist: {
         type: Schema.ObjectId,
         ref: "Artist"
@@ -17,7 +16,7 @@ const AlbumSchema = Schema({
         require: true
     },
     year: {
-        type: number,
+        type: Number,
         require: true
     },
     image: {

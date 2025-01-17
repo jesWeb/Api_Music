@@ -24,8 +24,8 @@ const songSchema = Schema({
         default: true
     },
     file: {
-        type: string,
-        require:true
+        type: String,
+        default:"song.mp3"
     },
     created_at: {
         type: Date,
