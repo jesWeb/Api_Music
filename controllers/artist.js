@@ -161,43 +161,7 @@ const editar = (req, res) => {
 }
 
 
-const eliminar = (req, res) => {
 
-    //sacar el id de la url 
-    const artistId = req.params.id;
-    //consultar para buscar y eliminar con el wait 
-    async function eliminar(params) {
-        try {
-            //eliminar artista
-            const artisRemove = await Artist.findByIdAndDelete(artistId)
-            //alimiar album
-            const albumRemove = await album.find({
-                artist: artistId
-            }).remove();
-            //eliminar songs
-            const songRemove = await album.find({
-                album: albumRemove._id
-            }).remove();
-
-            return res.status(200).send({
-                status: "success",
-                message: "metodo borrado artista ",
-                artisRemove,
-                albumRemove,
-                songRemove
-            })
-        } catch (error) {
-
-            return res.status(500).send({
-                status: "error",
-                message: "Error al eliminar elartista o alguno de sus elelementos ",
-                error
-            })
-        }
-    }
-    eliminar();
-
-}
 
 //upload
 const upload = (req, res) => {
@@ -295,6 +259,53 @@ const mostrarImageA = async (req, res) => {
     });
 }
 
+const eliminar = async (req, res) => {
+    const artistId = req.params.id;
+
+    try {
+        // Eliminar el artista
+        const artistRemove = await Artist.findByIdAndDelete(artistId);
+        
+        if (!artistRemove) {
+            return res.status(404).send({
+                status: "error",
+                message: "Artista no encontrado"
+            });
+        }
+
+        // Eliminar los álbumes asociados al artista
+        const albumRemove = await Album.deleteMany({ artist: artistId });
+
+        // Eliminar canciones asociadas a cada álbum
+        const songRemovePromises = albumRemove.deletedCount > 0 
+            ? albumRemove.map(async (album) => {
+                // Eliminar canciones asociadas al álbum
+                await Song.deleteMany({ album: album._id });
+
+                // Eliminar el álbum
+                await album.remove();
+            }) 
+            : []; // Si no hay álbumes, no hacer nada
+
+        // Esperar que todas las promesas de eliminación de canciones se resuelvan
+        await Promise.all(songRemovePromises);
+
+        return res.status(200).send({
+            status: "success",
+            message: "Artista, álbumes y canciones eliminados correctamente",
+            artistRemove,
+            albumRemove
+        });
+
+    } catch (error) {
+        console.error(error); // Log del error para depuración
+        return res.status(500).send({
+            status: "error",
+            message: "Error al eliminar el artista o alguno de sus elementos",
+            error: error.message || error
+        });
+    }
+};
 
 
 

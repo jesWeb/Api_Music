@@ -1,7 +1,10 @@
 const Song = require('../models/song');
-const album = require('../models/albums');
+const Album = require('../models/albums');
+
 const Artist = require("../models/artist");
 
+const fs = require('fs');
+const path = require('path');
 
 const prueba = (req, res) => {
     return status(200).send({
@@ -176,6 +179,85 @@ const eliminar = (req, res) => {
     borrad();
 }
 
+//upload
+const upload = (req, res) => {
+    async function AlbumUpdated() {
+        let songId = req.params.id;
+        //recoger fichero de imagen y comprobar si existe 
+        if (!req.file) {
+            return res.status(400).send({
+                status: "error",
+                message: "La peticion no incluye la cancion",
+
+            })
+        }
+        //conseguir el nombre del archivo 
+        let cancion = req.file.originalname;
+
+        //sacar info de la imagen 
+        const imagenSplit = cancion.split("\.");
+        const extension = imagenSplit[1];
+
+        //comprobar si la extension es valida 
+        if (extension !== 'mp3' && extension !== 'ogg') {
+            //si no es es6te eliminara el archivo  subido 
+            const filePath = req.file.path;
+            //file system 
+            const fileDelete = fs.unlinkSync(filePath);
+            return res.status(400).send({
+                status: "error",
+                message: "Extension del fiechero es invalida",
+                fileDelete
+            })
+        }
+        try {
+            const cancionUpdated = await Album.findOneAndUpdate({
+                _id: songId
+            }, {
+                file: req.file.filename
+            }, {
+                new: true
+            });
+            //devolver respuesta 
+            return res.status(200).send({
+                status: "success",
+                 cancionUpdated,
+                // file: req.file
+            })
+        } catch (error) {
+            return res.status(500).send({
+                status: "error",
+                message: "error en la subida del archivo ",
+            })
+        }
+    }
+    AlbumUpdated();
+}
+//mostrar image 
+const audio = async (req, res) => {
+    // sacar el parametro de la url 
+    const file = await req.params.file;
+    //montar el path de la imagen 
+    const filePath = "./audios/" + file;
+    //comprobar si existe 
+    fs.stat(filePath, (exists) => {
+
+        if (!exists) {
+            //devolver u file 
+            return res.sendFile(path.resolve(filePath));
+
+        } else {
+            return res.status(404).send({
+                status: "error",
+                menssage: "no existe la cancion "
+            });
+        }
+
+
+    });
+}
+
+
 
 
 module.exports = {
@@ -184,7 +266,7 @@ module.exports = {
     one,
     lista,
     editar,
-    eliminar
-    // mostrarImageA,
-    // upload
+    eliminar,
+    audio,
+    upload
 }

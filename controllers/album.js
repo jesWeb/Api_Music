@@ -1,8 +1,10 @@
 const albums = require("../models/albums");
 const Album = require("../models/albums");
+const Song = require("../models/song");
 const Artist = require("../models/artist");
 const fs = require('fs');
 const path = require('path');
+
 const prueba = (req, res) => {
     return res.status(200).send({
         status: "success",
@@ -142,6 +144,8 @@ const update = async (req, res) => {
     }
 };
 
+
+
 //upload
 const upload = (req, res) => {
     async function AlbumUpdated() {
@@ -169,7 +173,8 @@ const upload = (req, res) => {
             const fileDelete = fs.unlinkSync(filePath);
             return res.status(400).send({
                 status: "error",
-                message: "Extension del fiechero es invalida"
+                message: "Extension del fiechero es invalida",
+                fileDelete
             })
         }
         try {
@@ -195,7 +200,9 @@ const upload = (req, res) => {
     }
     AlbumUpdated();
 }
+
 //mostrar image 
+
 const mostrarImageA = async (req, res) => {
     // sacar el parametro de la url 
     const file = await req.params.file;
@@ -218,8 +225,40 @@ const mostrarImageA = async (req, res) => {
 
     });
 }
+const eliminar = async (req, res) => {
+    const albumId = req.params.id;
 
-//
+    try {
+        // Eliminar el álbum
+        const albumRemove = await Album.deleteOne({ _id: albumId });
+
+        if (albumRemove.deletedCount === 0) {
+            return res.status(404).send({
+                status: "error",
+                message: "Álbum no encontrado"
+            });
+        }
+
+        // Eliminar las canciones asociadas al álbum
+        const songRemove = await Song.deleteMany({ album: albumId });
+
+        return res.status(200).send({
+            status: "success",
+            message: "Álbum y canciones eliminados",
+            albumRemove,
+            songRemove
+        });
+    } catch (error) {
+        console.error(error); // Es recomendable loguear el error para depuración
+        return res.status(500).send({
+            status: "error",
+            message: "Error al eliminar el álbum o alguno de sus elementos",
+            error: error.message || error
+        });
+    }
+};
+
+
 
 
 module.exports = {
@@ -229,5 +268,6 @@ module.exports = {
     lista,
     update,
     upload,
-    mostrarImageA
+    mostrarImageA,
+    eliminar
 }

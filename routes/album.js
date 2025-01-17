@@ -30,7 +30,7 @@ router.get("/lista/:artistId", check.auth, AlbumController.lista);
 router.put("/update/:albumId", check.auth, AlbumController.update);
 router.post("/upload/:id", [check.auth, uploads.single("file0")], AlbumController.upload);
 router.get("/image/:file", check.auth, AlbumController.mostrarImageA);
-
+router.delete("/eliminar/:id", check.auth, AlbumController.eliminar);
 
 //exportar 
 module.exports = router;

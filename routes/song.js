@@ -10,10 +10,10 @@ const multer = require("multer");
 //donde almacenar 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "./images/artistas/");
+        cb(null, "./audios/");
     },
     filename: (req, file, cb) => {
-        cb(null, "artista-" + Date.now() + "-" + file.originalname);
+        cb(null, "cancion-" + Date.now() + "-" + file.originalname);
     }
 })
 //tipo middleware
@@ -23,17 +23,17 @@ const uploads = multer({
 
 
 
-const  prueba = require("../controllers/user");
+const prueba = require("../controllers/user");
 //definir rutas
 
 router.get("/prueba", SongController.prueba);
-router.post("/save",check.auth, SongController.save);
+router.post("/save", check.auth, SongController.save);
 router.get("/one/:id", check.auth, SongController.one);
 router.get("/lista/:albumId", check.auth, SongController.lista);
-router.put("/editar/:id",check.auth, SongController.editar);
+router.put("/editar/:id", check.auth, SongController.editar);
 router.delete("/eliminar/:id", check.auth, SongController.eliminar);
-// router.post("/upload/:id", [check.auth, uploads.single("file0")], ArtisController.upload);
-// router.get("/image/:file", check.auth, ArtisController.mostrarImageA);
+router.post("/upload/:id", [check.auth, uploads.single("file")], SongController.upload);
+router.get("/audio/:file", check.auth,SongController.audio);
 
 //exportar 
 module.exports = router;
