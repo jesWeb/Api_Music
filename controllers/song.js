@@ -1,6 +1,6 @@
 const Song = require('../models/song');
 const album = require('../models/albums');
-const Artist =  require("../models/artist");
+const Artist = require("../models/artist");
 
 
 const prueba = (req, res) => {
@@ -81,10 +81,13 @@ const lista = (req, res) => {
         const canciones = await Song.find({
             album: albumId,
 
-        }).sort("track").populate({path:"albums",populate:{
-            path:"artist",
-            model:"Artist"
-        }});
+        }).sort("track").populate({
+            path: "albums",
+            populate: {
+                path: "artist",
+                model: "Artist"
+            }
+        });
 
         if (!canciones) {
             return res.statu(404).send({
@@ -101,105 +104,77 @@ const lista = (req, res) => {
     listas();
 }
 
+const editar = (req, res) => {
+
+    //id de cancion url 
+    const songId = req.params.id;
+    //recoger datos del body 
+    const data = req.body;
+
+    async function edicion() {
+        try {
+
+            let editarCancion = await Song.findByIdAndUpdate(songId, data, {
+                new: true
+            });
 
 
-//upload
-// const upload = (req, res) => {
+            if (!editarCancion) {
 
+                return res.status(404).send({
+                    status: "error",
+                    message: "el cancion no se encontro y no se actualizo "
+                })
+            } else {
+                return res.status(200).send({
+                    status: "success",
+                    message: "Cancion actualizada",
+                    cancion: editarCancion
+                })
+            }
 
+        } catch (error) {
 
-//     async function ArtistUpdated() {
-//         let artistId = req.params.id;
-//         //recoger fichero de imagen y comprobar si existe 
-//         if (!req.file) {
-//             return res.status(400).send({
-//                 status: "error",
-//                 message: "La peticion no incluye la imagen",
+            return res.status(500).send({
+                status: "error",
+                message: "no se puedo actualizar "
+            })
+        }
+    }
 
-//             })
-//         }
-//         //conseguir el nombre del archivo 
-//         let image = req.file.originalname;
+    edicion();
+}
 
-//         //sacar info de la imagen 
-//         const imagenSplit = image.split("\.");
-//         const extension = imagenSplit[1];
+const eliminar = (req, res) => {
+    const songId = req.params.id;
 
-//         //comprobar si la extension es valida 
-//         if (extension !== 'png' && extension !== 'jpg' && extension !== 'jpeg') {
+    async function borrad() {
+        try {
+            let songRemove = await Song.findByIdAndDelete(songId);
 
-//             //si no es es6te eliminara el archivo  subido 
-//             const filePath = req.file.path;
-//             //file system 
-//             const fileDelete = fs.unlinkSync(filePath);
+            if (!songRemove) {
+                return res.status(404).send({
+                    status: "error",
+                    message: "Canción no encontrada o ya eliminada",
+                });
+            }
 
-//             return res.status(400).send({
-//                 status: "error",
-//                 message: "Extension del fiechero es invalida"
-//             })
+            return res.status(200).send({
+                status: "success",
+                message: "Se ha eliminado la canción",
+                song: songRemove,
+            });
+        } catch (error) {
+            return res.status(500).send({
+                status: "error",
+                message: "Error al eliminar la canción",
+                error: error.message,
+            });
+        }
+    }
 
-//         }
-
-//         try {
-
-
-//             let artistUpdated = await Artist.findOneAndUpdate({
-//                 _id: artistId
-//             }, {
-//                 image: req.file.filename
-//             }, {
-//                 new: true
-//             });
-
-//             //devolver respuesta 
-//             return res.status(200).send({
-//                 status: "success",
-//                 arista: artistUpdated,
-//                 file: req.file
-//             })
-
-
-//         } catch (error) {
-//             return res.status(500).send({
-//                 status: "error",
-//                 message: "error en la subida del archivo ",
-//             })
-//         }
-
-
-//     }
-
-//     ArtistUpdated();
-
-
-// }
-
-// //mostrar image 
-
-// const mostrarImageA = async (req, res) => {
-//     // sacar el parametro de la url 
-//     const file = await req.params.file;
-//     //montar el path de la imagen 
-//     const filePath = "./images/artistas/" + file;
-//     //comprobar si existe 
-//     fs.stat(filePath, (exists) => {
-
-//         if (!exists) {
-//             //devolver u file 
-//             return res.sendFile(path.resolve(filePath));
-
-//         } else {
-//             return res.status(404).send({
-//                 status: "error",
-//                 menssage: "no existe la imagen "
-//             });
-//         }
-
-
-//     });
-// }
-
-
+    borrad();
+}
 
 
 
@@ -207,7 +182,9 @@ module.exports = {
     prueba,
     save,
     one,
-    lista
+    lista,
+    editar,
+    eliminar
     // mostrarImageA,
     // upload
 }

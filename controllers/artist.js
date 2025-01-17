@@ -297,6 +297,8 @@ const mostrarImageA = async (req, res) => {
 
 
 
+
+
 module.exports = {
     prueba,
     guardar,

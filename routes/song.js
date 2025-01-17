@@ -30,6 +30,8 @@ router.get("/prueba", SongController.prueba);
 router.post("/save",check.auth, SongController.save);
 router.get("/one/:id", check.auth, SongController.one);
 router.get("/lista/:albumId", check.auth, SongController.lista);
+router.put("/editar/:id",check.auth, SongController.editar);
+router.delete("/eliminar/:id", check.auth, SongController.eliminar);
 // router.post("/upload/:id", [check.auth, uploads.single("file0")], ArtisController.upload);
 // router.get("/image/:file", check.auth, ArtisController.mostrarImageA);
 
